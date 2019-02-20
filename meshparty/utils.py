@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 from scipy import sparse
 import networkx as nx
 import pcst_fast
@@ -36,7 +36,7 @@ def find_far_points_graph(mesh_graph, start_ind=None, multicomponent=False):
     '''
     d = 0
     dn = 1
-   
+
     if start_ind is None:
         if multicomponent:
             a = connected_component_slice(mesh_graph)[0]
@@ -45,7 +45,7 @@ def find_far_points_graph(mesh_graph, start_ind=None, multicomponent=False):
     else:
         a = start_ind
     b = 1
-    
+
     k = 0
     pred = None
     ds = None
@@ -77,7 +77,7 @@ def edge_averaged_vertex_property(edge_property, vertices, edges):
     vertex_property[edges[:,0],0] = np.array(edge_property)
     vertex_property[edges[:,1],1] = np.array(edge_property)
     return np.nanmean(vertex_property, axis=1)
-    
+
 
 def reduce_vertices(vertices, edges, v_filter=None, e_filter=None, return_filter_inds=False):
     '''
@@ -90,10 +90,10 @@ def reduce_vertices(vertices, edges, v_filter=None, e_filter=None, return_filter
     if e_filter is None:
         e_filter_bool = np.isin(edges[:,0], v_filter) & np.isin(edges[:,1], v_filter)
         e_filter = np.where(e_filter_bool)[0]
-    
+
     vertices_n = vertices[v_filter]
     vmap = dict(zip(v_filter, np.arange(len(v_filter))))
-    
+
     edges_f = edges[e_filter].copy()
     edges_n = np.stack((np.fromiter((vmap[x] for x in edges_f[:,0]), dtype=int),
                         np.fromiter((vmap[x] for x in edges_f[:,1]), dtype=int))).T
@@ -114,9 +114,9 @@ def create_csgraph(vertices, edges, euclidean_weight=True, directed=False):
         ys = vertices[edges[:,1]]
         weights = np.linalg.norm(xs-ys, axis=1)
         use_dtype = np.float32
-    else:   
+    else:
         weights = np.ones((len(edges),)).astype(bool)
-        use_dtype = bool 
+        use_dtype = bool
 
     if directed:
         edges = edges.T
@@ -144,10 +144,11 @@ def create_nxgraph(vertices, edges, euclidean_weight=True, directed=False):
     if directed:
         edges = edges.T
     else:
-        edges = np.concatenate([edges.T, edges.T[[1, 0]]], axis=1)
+        edges = np.concatenate([edges, edges.T[[1, 0]].T], axis=1) # nx graph needs 2 x N edges, rather than N x 2
         weights = np.concatenate([weights, weights]).astype(dtype=use_dtype)
 
     weighted_graph = nx.Graph()
+
     weighted_graph.add_edges_from(edges)
 
     for i_edge, edge in enumerate(edges):
