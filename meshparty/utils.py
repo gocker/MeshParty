@@ -147,6 +147,9 @@ def create_nxgraph(vertices, edges, euclidean_weight=True, directed=False):
         edges = np.concatenate([edges, edges.T[[1, 0]].T], axis=1) # nx graph needs 2 x N edges, rather than N x 2
         weights = np.concatenate([weights, weights]).astype(dtype=use_dtype)
 
+    if edges.shape[0] is not in [2, 3]:
+        edges = edges.T
+
     weighted_graph = nx.Graph()
 
     weighted_graph.add_edges_from(edges)
