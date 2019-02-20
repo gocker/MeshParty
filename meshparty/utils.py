@@ -141,13 +141,14 @@ def create_nxgraph(vertices, edges, euclidean_weight=True, directed=False):
         weights = np.ones((len(edges),)).astype(bool)
         use_dtype = bool
 
-    if directed:
-        edges = edges.T
-    else:
+    if not directed:
         edges = np.concatenate([edges, edges.T[[1, 0]].T], axis=1) # nx graph needs 2 x N edges, rather than N x 2
         weights = np.concatenate([weights, weights]).astype(dtype=use_dtype)
 
-    if edges.shape[0] is not in [2, 3]:
+    if (max(edges.shape) == 2):
+        raise Warning('2 x 2 edges; double check the order of your edges to make sure they are 2 x edges.')
+
+    if (edges.shape[0] != 2):
         edges = edges.T
 
     weighted_graph = nx.Graph()
